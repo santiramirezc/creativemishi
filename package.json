@@ -1,0 +1,37 @@
+{
+  "name": "mishi-template",
+  "version": "0.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "scripts": {
+    "dev": "nodemon ./src/apis/rest/bin/www",
+    "lint": "eslint .",
+    "start:client:rest": "node ./src/apis/rest/bin/www",
+    "start": "npm run start:client:rest",
+    "test:api:prod": "jest --config=jest.api.prod.config.js",
+    "test:api": "jest --config=jest.api.config.js",
+    "test:watch": "npm run test -- --watch",
+    "test": "jest --config=jest.unit.config.js"
+  },
+  "dependencies": {
+    "awilix": "^6.0.0",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "helmet": "^4.6.0",
+    "swagger-jsdoc": "^6.1.0",
+    "swagger-ui-express": "^4.2.0"
+  },
+  "devDependencies": {
+    "axios": "^0.24.0",
+    "eslint": "^7.32.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-jsdoc": "^37.2.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.2.0",
+    "jest": "^27.4.3",
+    "nodemon": "^2.0.15"
+  }
+}
