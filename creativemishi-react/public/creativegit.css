@@ -1,0 +1,37 @@
+.row .col {
+    padding: 0 !important;
+}
+
+.card{
+    margin: 0 !important; 
+    border-style: solid;
+    border-color: pink;
+}
+
+.post {
+    margin: 0 !important; 
+    border-style: solid;
+    border-color: pink;
+    position: relative;          /* where the next element will be automatically positioned */
+    display: inline-block;       /* causes element width to shrink to fit content */
+    left: 50%;                   /* moves left side of image/element to center of parent element */
+    transform: translate(-50%); 
+}
+
+.post.active {
+    transform: inherit
+}
+
+.part-title {
+    color: rgb(0 0 0 / 87%) !important;
+}
+
+.part-title {
+    background-color: rgba(238, 110, 115, 0.3)
+}
+
+.btn-control {
+    margin-top: 20px;
+    margin-left: 20px;
+    margin-right: 20px;
+}

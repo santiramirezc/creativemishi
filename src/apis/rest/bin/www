@@ -1,0 +1,52 @@
+const app = require('../app')
+const http = require('http')
+
+const DIContainer = require('../../../main')
+const container = DIContainer()
+
+const logger = container.resolve('logger')
+const startup = container.resolve('startup')
+const shutdown = container.resolve('shutdown')
+
+
+const onSignal = ({ signal, shutdown, server }) => async () => {
+  console.info('Server shutting down...', { signal })
+  server.close(async () => {
+    try {
+      await shutdown()
+      logger.info('Server gracefully shutdown')
+      process.exit(0)
+    } catch (error) {
+      logger.error('Failed to gracefully shutdown', { error })
+      process.exit(1)
+    }
+  })
+}
+
+// Server Startup
+startup().then(startupResults => {
+  logger.info('startup actions successful', { startupResults })
+  const { PORT: port } = container.resolve('envConfig')
+
+  app.set('port', port)
+
+  const server = http.createServer(app)
+
+  // register shutdown handlers
+  process.on('SIGTERM', onSignal({ signal: 'SIGTERM', shutdown, server }))
+  process.on('SIGINT', onSignal({ signal: 'SIGINT', shutdown, server }))
+
+  server.listen(port)
+
+  server.on('error', async (error) => {
+    console.log(error)
+    logger.info('express service encountered an error', { error })
+    await shutdown()
+    process.exit(1)
+  })
+
+  server.on('listening', () => {
+    console.log("express service ready")
+    logger.info('express service ready')
+  })
+})
