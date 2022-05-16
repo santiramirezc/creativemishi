@@ -20,4 +20,6 @@ module.exports = () => ({
   PORT: process.env.PORT,
   SERVICE_ID: serviceId,
   SERVICE_VERSION: serviceVersion,
+
+  MONGO_URI: process.env.MONGO_URI,
 })

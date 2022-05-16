@@ -6,10 +6,10 @@
  * @param {object} dependencies.databaseUtil database dependency
  * @returns {Function} startup action
  */
-module.exports = ({ databaseUtil, logger }) => async () => {
+module.exports = ({ db, logger }) => async () => {
   logger.info('Running startup action')
 
-  await databaseUtil.migrate()
+  db.connect()
 
   logger.info('Startup action successful.')
   return {}

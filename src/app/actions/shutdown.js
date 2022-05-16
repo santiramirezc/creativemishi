@@ -6,10 +6,8 @@
  * @param {object} dependencies.databaseUtil database dependency
  * @returns {Function} shutdown action
  */
-module.exports = ({ databaseUtil, logger }) => async () => {
+module.exports = ({ logger }) => async () => {
   logger.info('running shutdown action')
-
-  await databaseUtil.close()
 
   return {}
 }
