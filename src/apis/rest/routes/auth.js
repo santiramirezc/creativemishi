@@ -5,8 +5,8 @@ const { verifyUser, COOKIE_OPTIONS } = require('../../../util/auth.utils')
 
 
 router.post('/login', passport.authenticate('local'), async (req, res) => {
-  const loginAction = req.scope.resolve('loginAction')
-  const response = await loginAction({ userid: req.user._id })
+  const userActions = req.scope.resolve('userActions')
+  const response = await userActions.login({ userid: req.user._id })
   if (response.status === 200) {
     res.cookie("refreshToken", response.refreshToken, COOKIE_OPTIONS);
     res.send({ success: true, user: response.user });
@@ -53,8 +53,8 @@ router.post('/register', async (req, res) => {
     username: req.body.username,
     password: req.body.password,
   }
-  const register = req.scope.resolve('userRegisterAction')
-  const response = await register(data)
+  const userActions = req.scope.resolve('userActions')
+  const response = await userActions.register(data)
   if (response.status !== 200) {
     res.statusCode = response.status
     res.send(response)
@@ -73,8 +73,8 @@ router.post("/refreshToken", async (req, res, next) => {
   if (refreshToken) {
     console.log("EY obtuvimos el refreshToken como:")
     console.log(refreshToken)
-    const refreshTokenAction = req.scope.resolve('refreshTokenAction')
-    const response = await refreshTokenAction({ refreshToken })
+    const userActions = req.scope.resolve('userActions')
+    const response = await userActions.refreshToken({ refreshToken })
     if (response.status !== 200) {
       res.statusCode = response.status;
       res.send(response);
@@ -92,8 +92,8 @@ router.put('/password', async (req, res) => {
   const username = req.body.username
   const oldpassword = req.body.oldpassword
   const newpassword = req.body.newpassword
-  const chgpwdAction = req.scope.resolve('changePasswordAction')
-  const response = await chgpwdAction({ username, oldpassword, newpassword })
+  const userActions = req.scope.resolve('userActions')
+  const response = await userActions.changePassword({ username, oldpassword, newpassword })
   if (!response.ok) {
     res.statusCode = response.status;
     res.send(response);
@@ -109,8 +109,8 @@ router.post("/logout", verifyUser, async (req, res, next) => {
   if (refreshToken && req.user._id) {
     console.log("Loggin out, refreshToken received:")
     console.log(refreshToken)
-    const logoutAction = req.scope.resolve('logoutAction')
-    const response = await logoutAction({ refreshToken, userId: req.user._id })
+    const userActions = req.scope.resolve('userActions')
+    const response = await userActions.logout({ refreshToken, userId: req.user._id })
     if (response.status !== 200) {
       res.statusCode = response.status;
       res.send(response);
