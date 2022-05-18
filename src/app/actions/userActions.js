@@ -10,7 +10,7 @@ module.exports = ({ db }) => ({
       const user = await db.User.findOne({ username })
       if (user) {
         const projects = await db.Project.find({ $or: [{ createdBy: username }, { 'admins.username': { $in: username } }] })
-        const userDTO = { username: user.username, name: user.name, role: user.role, projects }
+        const userDTO = { username: user.username, name: user.name, role: user.role, token: user.token, projects }
         return { status: 200, comment: '', user: userDTO }
       }
     } catch (e) {
@@ -31,7 +31,7 @@ module.exports = ({ db }) => ({
         user.refreshToken.push({ refreshToken })
         await user.save()
         const projects = await db.Project.find({ $or: [{ createdBy: user.username }, { 'admins.username': { $in: user.username } }] })
-        const userDTO = { username: user.username, name: user.name, role: user.role, token, projects }
+        const userDTO = { username: user.username, name: user.name, role: user.role, projects }
         return { status: 200, comment: 'Login sucessfull', refreshToken, user: userDTO }
       }
     } catch (e) {
