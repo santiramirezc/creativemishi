@@ -8,21 +8,18 @@ const Contribution = new mongoose.Schema(
         createdBy: String,
         //TODO: Implement date now
         date: Date,
-        approved: {
-            approved_by: String,
-            state: String,
-        },
+        state: String,
         projectId: String,
         part: Number,
         version: Number,
-        feedback: [{
+        history: [{
             username: String,
-            text: String,
+            feedback: String,
             date: Date,
             state: String,
         }],
         files: {
-            folder: String,
+            finalVersion: String,
             files: [String],
             drive_url: String,
         },

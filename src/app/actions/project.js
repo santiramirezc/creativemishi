@@ -2,21 +2,6 @@ const e = require("express")
 
 module.exports = ({ db }) => {
 
-  const getNextVersion = async ({ projectId, part }) => {
-    let versions = [0]
-    let contributions = await db.Contribution.find({ projectId, part })
-    if (contributions.length > 0) {
-      for (i = 0; i < contributions.length; i++) {
-        if (contributions[i]?.version) {
-          versions.push(contributions[i].version)
-        }
-      }
-      return Math.max(...versions) + 1
-    } else {
-      return 1
-    }
-  }
-
   return {
     get: async ({ projectId }) => {
       console.log(projectId)
@@ -26,7 +11,7 @@ module.exports = ({ db }) => {
           return { ok: true, success: true, status: 200, comment: "This project doesn't exists" }
         }
         const { _doc } = await db.Project.findOne({ projectId })
-        const parts = await db.Contribution.find({ projectId })
+        const parts = await db.Contribution.find({ projectId, state: 'approved' })
         //Filter unique and lasts versions of parts
         const uniqueParts = parts.map(p => { return { part: p.part, version: p.version, id: p._id } }).filter((p, i, s) => s.indexOf(p) === i)
 
@@ -54,14 +39,43 @@ module.exports = ({ db }) => {
       }
     },
 
-    create: async (project) => {
+    getContributions: async ({ projectId, username }) => {
       try {
-        const projectExist = await db.Project.findOne({ projectId: project.projectId })
+        const project = await db.Project.findOne({ projectId })
+        if (!project) {
+          return { success: false, status: 400, comment: "This project doesn't already exists" }
+        }
+        let isAdmin = false
+        for (let i = 0; i < project.admins.length; i++) {
+          let admin = project.admins[i]
+          if (admin.username === username) {
+            //This user is admin
+            isAdmin = true
+          }
+        }
+        if (!isAdmin) {
+          return { success: false, status: 401, comment: "You're not admin of this project" }
+        }
+        const contributions = await db.Contribution.find({ projectId, $or: [{ state: 'waiting for approval' }, { state: 'changes requested' }] })
+        if (contributions.length > 0) {
+          return { contributions }
+        }
+        return { comment: "This project doesn't have any contributions yet" }
+      } catch (e) {
+        return { success: false, status: 500, comment: "Error on getContributions: " + e.toString() }
+      }
+    },
+
+    create: async ({ projectData, username }) => {
+      try {
+        const projectExist = await db.Project.findOne({ projectId: projectData.projectId })
         if (projectExist) {
           return { ok: true, success: false, status: 200, comment: "This project id already exists" }
         }
-        const projectDb = new db.Project(project)
-        const newProject = await projectDb.save()
+        const project = new db.Project(projectData)
+        project.createdBy = username
+        project.admins.push({ username, role: "admin" })
+        const newProject = await project.save()
         return { ok: true, success: true, status: 200, project: newProject, comment: "Project created sucessfully" }
       }
       catch (e) {
@@ -78,9 +92,7 @@ module.exports = ({ db }) => {
           return { ok: false, success: true, status: 200, comment: "This project doesn't exists" }
         }
         //Find last version of part
-        //const version = await getNextVersion({ projectId, part })
         const contribution = new db.Contribution(contributionData)
-        //contribution.version = version
         contribution.save()
         return { ok: true, success: true, contribution }
       }

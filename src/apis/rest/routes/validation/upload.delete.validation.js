@@ -5,13 +5,8 @@ const optionalString = Joi.string().trim()
 
 module.exports = {
   schema: Joi.object({
-    jdeid: optionalString,
-    sfid: requiredString,
+    fileName: requiredString,
   }),
-  /**
-   * @param {object} req request object
-   * @param {object} req.body body request params
-   * @returns {object} validated body
-   */
+
   getData: ({ body }) => body,
 }

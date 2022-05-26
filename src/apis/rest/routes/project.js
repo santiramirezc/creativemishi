@@ -18,8 +18,8 @@ router.get('/:projectId', async (req, res) => {
 
 router.post('/create', verifyUser, validate(projectValidation), async (req, res) => {
   const project = req.scope.resolve('project')
-  const createdBy = req.user.username
-  const response = await project.create({ ...req.cleanData, createdBy })
+  const { username } = req.user
+  const response = await project.create({ projectData: { ...req.cleanData }, username })
   if (!response.ok) {
     res.statusCode = response.status
     res.send(response)
@@ -28,10 +28,10 @@ router.post('/create', verifyUser, validate(projectValidation), async (req, res)
   }
 })
 
-router.post('/:projectId/contribution', validate(contributionValidation), async (req, res) => {
+router.post('/:projectId/contribution', verifyUser, validate(contributionValidation), async (req, res) => {
   const { projectId } = req.params
   const projectActions = req.scope.resolve('project')
-  const createdBy = 'sramirez'
+  const createdBy = req.user.username
   const { contribution, ok, status, comment } = await projectActions.createContribution({ projectId, createdBy, ...req.cleanData })
   if (!ok) {
     res.statusCode = status
@@ -39,6 +39,15 @@ router.post('/:projectId/contribution', validate(contributionValidation), async 
   } else {
     res.send({ success: true, contribution })
   }
+})
+
+router.get('/:projectId/contributions', verifyUser, async (req, res) => {
+  const { projectId } = req.params
+  const projectActions = req.scope.resolve('project')
+  const { username } = req.user
+  const { success = true, status = 200, comment = '', contributions = {} } = await projectActions.getContributions({ projectId, username })
+  res.statusCode = status
+  res.send({ success, status, comment, contributions })
 
 })
 

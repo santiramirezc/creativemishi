@@ -71,8 +71,8 @@ router.post("/refreshToken", async (req, res, next) => {
   const { refreshToken } = signedCookies;
 
   if (refreshToken) {
-    console.log("EY obtuvimos el refreshToken como:")
-    console.log(refreshToken)
+    // console.log("EY obtuvimos el refreshToken como:")
+    // console.log(refreshToken)
     const userActions = req.scope.resolve('userActions')
     const response = await userActions.refreshToken({ refreshToken })
     if (response.status !== 200) {
@@ -107,8 +107,8 @@ router.post("/logout", verifyUser, async (req, res, next) => {
   const { refreshToken } = signedCookies;
 
   if (refreshToken && req.user._id) {
-    console.log("Loggin out, refreshToken received:")
-    console.log(refreshToken)
+    //console.log("Loggin out, refreshToken received:")
+    //console.log(refreshToken)
     const userActions = req.scope.resolve('userActions')
     const response = await userActions.logout({ refreshToken, userId: req.user._id })
     if (response.status !== 200) {

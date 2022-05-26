@@ -18,6 +18,19 @@ module.exports = ({ db }) => ({
     }
   },
 
+  getContributions: async ({ username }) => {
+    try {
+      const contributions = await db.Contribution.find({ createdBy: username })
+      if (contributions.length > 0) {
+        return { success: true, status: 200, contributions }
+      } else {
+        return { success: true, status: 200, comment: 'You dont have any contributions yet' }
+      }
+    } catch (e) {
+      return { success: false, status: 500, comment: 'Error getting user contributions: ' + e.toString() }
+    }
+  },
+
   login: async ({ userid }) => {
     const token = getToken({ _id: userid })
     const refreshToken = getRefreshToken({ _id: userid })
@@ -78,8 +91,8 @@ module.exports = ({ db }) => ({
       )
       const userId = payload._id
       const user = await db.User.findById(userId)
-      console.log("User db refreshTokens: ")
-      console.log(user.refreshToken)
+      //console.log("User db refreshTokens: ")
+      //console.log(user.refreshToken)
       if (user) {
         // Find the refresh token against the user record in database
         const tokenIndex = user.refreshToken.findIndex(
