@@ -12,10 +12,13 @@ router.get('/:contributionId', async (req, res) => {
   res.send({ success, status, comment, data })
 })
 
-router.post('/upload', async (req, res) => {
+router.post('/:contributionId/upload', verifyUser, async (req, res) => {
   //TODO: Verify user and include credentials in reactapp
   const contributionActions = req.scope.resolve('contributionActions')
-  const { success = true, status = 500, comment = '', data = {} } = await contributionActions.upload({ req, username: 'sramirez' })
+  const { contributionId } = req.params
+  //const { fileName } = req.cleanData
+  const { username } = req.user
+  const { success = true, status = 500, comment = '', data = {} } = await contributionActions.upload({ req, contributionId, username })
   res.statusCode = status
   res.send({ success, status, comment, data })
 });

@@ -4,6 +4,13 @@ const projectValidation = require('./validation/project.validation.js')
 const contributionValidation = require('./validation/contribution.create.validation')
 const { verifyUser } = require('../../../util/auth.utils')
 
+router.get('/', async (req, res) => {
+  const projectActions = req.scope.resolve('project')
+  const { success = true, status = 200, comment = '', data = {} } = await projectActions.getAllProjects()
+  res.statusCode = status
+  res.send({ success, status, comment, data })
+})
+
 router.get('/:projectId', async (req, res) => {
   const { projectId } = req.params
   const projectActions = req.scope.resolve('project')
@@ -48,7 +55,15 @@ router.get('/:projectId/contributions', verifyUser, async (req, res) => {
   const { success = true, status = 200, comment = '', contributions = {} } = await projectActions.getContributions({ projectId, username })
   res.statusCode = status
   res.send({ success, status, comment, contributions })
+})
 
+router.get('/:projectId/part/:partId', async (req, res) => {
+  const { projectId, partId } = req.params
+  console.log("PARTID = " + partId)
+  const projectActions = req.scope.resolve('project')
+  const { success = true, status = 200, comment = '', data = {} } = await projectActions.getPart({ projectId, partId })
+  res.statusCode = status
+  res.send({ success, status, comment, data })
 })
 
 module.exports = router

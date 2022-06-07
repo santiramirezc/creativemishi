@@ -19,7 +19,20 @@ const Contribution = new mongoose.Schema(
             state: String,
         }],
         files: {
-            finalVersion: String,
+            finalVersion: {
+                location: String,
+                label: String,
+            },
+            data: [{
+                eTag: String,
+                location: String,
+                awskey: String,
+                bucket: String,
+                label: String, //File name
+                sourceType: String, //Video or image
+                source: String, //Upload or custom link ()
+                finalVersion: Boolean,
+            }],
             files: [String],
             drive_url: String,
         },

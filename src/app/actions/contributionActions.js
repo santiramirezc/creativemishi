@@ -36,7 +36,7 @@ module.exports = ({ db, aws }) => {
       }
     },
 
-    upload: async ({ req, username }) => {
+    upload: async ({ req, contributionId, username }) => {
       const form = new multiparty.Form()
       return new Promise((resolve, reject) => {
         form.parse(req, async (e, fields, files) => {
@@ -44,12 +44,6 @@ module.exports = ({ db, aws }) => {
             resolve({ ok: false, success: false, status: 500, comment: 'Error on get contribution action ' + e.toString() })
             return
           }
-
-          if (!fields.contributionId) {
-            resolve({ ok: true, success: false, status: 200, comment: 'We need the contributionId man...' })
-            return
-          }
-          const { contributionId } = fields
 
           try {
             //Verify user is owner of contribution
@@ -61,7 +55,8 @@ module.exports = ({ db, aws }) => {
 
             //Check if file exist in contribution.files
             const fileName = files.file[0].originalFilename
-            if (contribution.files.files.indexOf(fileName) !== -1) {
+
+            if (contribution.files.data.some(f => f.label === fileName)) {
               resolve({ ok: true, success: false, status: 200, comment: 'This file already exists on your contribution, remove it and try again (if that is what you want)...' })
               return
             }
@@ -69,11 +64,21 @@ module.exports = ({ db, aws }) => {
             //If not save it to aws
             const path = files.file[0].path
             const buffer = fs.readFileSync(path)
-            const data = await aws.uploadFile({ buffer, fileName: contributionId + '/' + fileName })
+            const { ETag, Location, Key, Bucket } = await aws.uploadFile({ buffer, fileName: contributionId + '/' + fileName })
+
             //Register file in contribution.files
-            contribution.files.files.push(fileName)
-            contribution.save()
-            resolve({ ok: true, success: true, status: 200, data })
+            contribution.files.data.push({
+              eTag: ETag,
+              location: Location,
+              awskey: Key,
+              bucket: Bucket,
+              source: 'Upload',
+              label: fileName,
+            })
+
+            await contribution.save()
+
+            resolve({ ok: true, success: true, status: 200, comment: "File saved successfully" })
             return
           } catch (e) {
             console.log(e)
@@ -95,21 +100,24 @@ module.exports = ({ db, aws }) => {
         }
 
         //Check if file exist in contribution.files  
-        if (contribution.files.files.indexOf(fileName) === -1) {
+        let fileIndex = contribution.files.data.findIndex(f => f.label === fileName)
+        if (fileIndex === -1) {
           return { success: false, status: 400, comment: 'This file does not exists on your contribution' }
         }
 
         //Check if file is final version
-        if (contribution.files.finalVersion === fileName) {
-          contribution.files.finalVersion = ''
+        if (contribution.files.finalVersion.label === fileName) {
+          contribution.files.finalVersion = {
+            location: '',
+            label: '',
+          }
         }
 
         //Delete in aws
         await aws.deleteFile({ contributionId, fileName })
 
         //Register change in contribution.files
-        const fileIndex = contribution.files.files.indexOf(fileName)
-        contribution.files.files.splice(fileIndex, 1)
+        contribution.files.data.splice(fileIndex, 1)
         contribution.save()
 
         return { success: true, status: 200, comment: 'File deleted' }
@@ -127,13 +135,19 @@ module.exports = ({ db, aws }) => {
           return { success: false, status: 401, comment: 'Watchout man you are not the owner of this contribution...' }
         }
 
-        //Check if file exist in contribution.files  
-        if (contribution.files.files.indexOf(fileName) === -1) {
+        //Check if file exist in contribution.files 
+        const fileIndex = contribution.files.data.findIndex(f => f.label === fileName)
+        if (fileIndex === -1) {
           return { success: false, status: 400, comment: 'This file does not exists on your contribution' }
         }
 
-        contribution.files.finalVersion = fileName
-        contribution.save()
+        contribution.files.data[fileIndex].finalVersion = true
+        contribution.files.finalVersion = {
+          location: contribution.files.data[fileIndex].location,
+          label: fileName,
+        }
+
+        await contribution.save()
 
         return { success: true, status: 200, comment: 'File set sucessfully' }
 
@@ -150,7 +164,7 @@ module.exports = ({ db, aws }) => {
         }
 
         //Minimun data required
-        if (contribution.files.files.length < 1) {
+        if (contribution.files.data.length < 1) {
           return { success: false, state: 400, comment: "Please include at least one file" }
         }
         if (!contribution.files.finalVersion) {

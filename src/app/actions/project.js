@@ -8,7 +8,7 @@ module.exports = ({ db }) => {
       try {
         const projectExist = await db.Project.findOne({ projectId })
         if (!projectExist) {
-          return { ok: true, success: true, status: 200, comment: "This project doesn't exists" }
+          return { ok: true, success: false, status: 400, comment: "This project doesn't exists" }
         }
         const { _doc } = await db.Project.findOne({ projectId })
         const parts = await db.Contribution.find({ projectId, state: 'approved' })
@@ -36,6 +36,15 @@ module.exports = ({ db }) => {
       }
       catch (e) {
         return { ok: false, success: false, status: 500, comment: 'Error on get project action: ' + e.toString() }
+      }
+    },
+
+    getAllProjects: async () => {
+      try {
+        const projects = await db.Project.find()
+        return { data: projects }
+      } catch (e) {
+        return { success: false, comment: `Error on getAllProject action: ${e.toString()}` }
       }
     },
 
@@ -98,6 +107,21 @@ module.exports = ({ db }) => {
       }
       catch (e) {
         return { ok: false, success: false, status: 500, comment: 'Error on create contribution action: ' + e.toString() }
+      }
+    },
+
+    getPart: async ({ projectId, partId }) => {
+      try {
+        const projectExist = await db.Project.findOne({ projectId })
+        if (!projectExist) {
+          return { success: false, status: 400, comment: "This project doesn't exists" }
+        }
+        const parts = await db.Contribution.find({ projectId, state: 'approved', part: partId })
+
+        return { data: parts }
+      }
+      catch (e) {
+        return { success: false, status: 500, comment: 'Error on get part action: ' + e.toString() }
       }
     }
   }
