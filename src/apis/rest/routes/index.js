@@ -2,11 +2,11 @@ const router = require('express').Router()
 
 
 router
-  .use('/', require('./probes'))
-  .use('/auth', require('./auth'))
-  .use('/project', require('./project'))
-  .use('/user', require('./user'))
-  .use('/contribution', require('./contribution'))
+  .use('/api/auth', require('./auth'))
+  .use('/api/project', require('./project'))
+  .use('/api/user', require('./user'))
+  .use('/api/contribution', require('./contribution'))
+  .use('*', require('../react-route'))
 
 
 module.exports = router

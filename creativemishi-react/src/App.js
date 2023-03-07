@@ -1,121 +1,106 @@
-import React, { useEffect, useState } from "react"
-import {BrowserRouter as Router, Route, Switch, useHistory} from 'react-router-dom'
+import React, { useCallback, useEffect, useState } from "react"
+import { Route, Routes, useNavigate} from 'react-router-dom'
 
-import Home from './routes/Home'
-import Profile from './routes/Profile'
-import Project from './routes/Project'
-import Chapter from './routes/Chapter'
-import Shot from './routes/Shot'
-import Stage from './routes/Stage'
-import Contributions from './routes/Contributions'
-import AllContributions from './routes/AllContributions'
-import Upload from './routes/Upload'
-import Settings from './routes/Settings'
 import ProtectedRoute from './routes/ProtectedRoute'
-import Part from './routes/Part'
+import Home from './routes/Home'
+import Register from './routes/Register'
+import Login from './routes/Login'
+import Profile from './routes/Profile'
+import Project from "./routes/Project"
+import Contribute from "./routes/Contribute"
+import Contribution from "./routes/Contribution"
+import Contributions from "./routes/me/Contributions"
+import Part from "./routes/Part"
+
 import Header from './components/Header'
 import Footer from './components/Footer'
-import Contribute from './components/Contribute'
-import Version from './routes/Version'
+import Loader from "./components/Loader"
 
 
 var App = () => {
+ 
+  const [user,setUser] = useState(null)
+  const [project,setProject] = useState()
+  const [verifyDone, setVerifyDone] = useState(null)
 
-  const [project, setProject] = useState({name:false,parts:[]})
-  const [user,setUser] = useState({})
-  const history = useHistory()
-  
-  // var setUser = user => {
-  //   sessionStorage.setItem('user', JSON.stringify(user));
-  //   this.setState({user})
-  //   console.log(this.state.user)
-  // }
+  const navigate = useNavigate()
 
-  useEffect(()=>{
-    getUser()
+  const verifyUser = useCallback(() => {
+    fetch(process.env.REACT_APP_API_ENDPOINT + "auth/refreshToken", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    }).then(async (response) => {
+      if (response.ok) {
+        const data = await response.json();
+        setUser((oldValues) => {
+          return { ...oldValues, ...data.user};
+        });
+        console.log("User despues de refresToken:")
+        console.log(user)
+      } else {
+        setUser(null);
+        navigate('/login')
+      }
+      setVerifyDone(true)
+      // call refreshToken every 5 minutes to renew the authentication token.
+      setTimeout(verifyUser, 5 * 60 * 1000);
+    });
+  }, [])
+
+  const getProject = ({projectId}) => {
+    console.log('Getting project')
+    fetch(process.env.REACT_APP_API_ENDPOINT + "project/" + projectId, {
+      credentials: "include",
+      method:"GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${user.token}`,
+      },
+    }).then(async (response) => {
+      const {success,project, comment} = await response.json()
+      if(success && project){
+        setProject(project)
+      }else if(success && !project){
+        console.log(comment ? comment : "no comment")
+        setProject({name:"The project you're looking for doesn't exist"})
+        //Redirect user to 404 
+      }else{
+        console.log("Error getting project :(")
+      }
+    })
+  }
+
+  useEffect(() => {
+    if(!user){
+      verifyUser()
+    }
   },[])
-
-  const logout = () => {
-    fetch('/logout')
-      .then( res => res.json())
-      .then( data => {
-        console.log("YESS")
-        setUser({})
-      })
-      .catch( e => {
-        console.log("Error, igual cerrando session")
-        setUser({})
-      })
-  }
-
-  const getUser = () => {
-    //Traer los datos del usuario 
-    fetch('/app/user')
-      .then(res => res.json())
-      .then(data => {      
-        setUser(data)
-        console.log("usuario:") 
-        console.log(data)
-      })
-      .catch((error) =>{
-        console.log(error)
-        console.log("No se pudo traer el usuario")
-        //Se muestra el botón de login
-      })
-    //Guardar el usuario en localsesion
-  }
-
-  const getProject = (projectId) => {
-    console.log("Ejecutando getproject")
-    fetch('/app/project/'+projectId)
-      .then( res => res.json())
-      .then( data => {
-        console.log("Heey")
-        console.log(data)
-        if(data){
-          setProject(data)
-        }
-        console.log(project)
-      })
-      .catch(e => console.log(e))
-  }
-
 
   return (
     <div className="App"> 
-      <Router>
-        <Header user={user} setUser={setUser} logout={logout}></Header>
-          <Switch>
-            <Route exact path="/" >
-              <Home></Home>
-            </Route>
-            <Route path="/user">
-              <Profile></Profile>
-            </Route>
-            <Route exact path="/project/:projectId" >
-              <Project user={user} project={project} getProject={getProject}></Project>
-            </Route>
-            <Route exact path="/project/:projectId/contribute" >
-              <Contribute getProject={getProject}></Contribute>
-            </Route>
-            <Route exact path="/project/:projectId/contributions" >
-              <Contributions user={user} project={project} getProject={getProject}></Contributions>
-            </Route>
-            <Route exact path="/project/:projectId/part/:partId" >
-              <Project user={user} project={project} getProject={getProject}></Project>
-            </Route>
-            <Route exact path="/project/:projectId/part/:partId" >
-              <Part user={user} project={project} getProject={getProject}></Part>
-            </Route>
-            <Route exact path="/project/:projectId/part/:partId/v/:version" >
-              <Version user={user} project={project} getProject={getProject}></Version>
-            </Route>
-            <Route exact path="/project/:projectId/part/:partId/contribute" >
-              <Contribute  project={project} getProject={getProject}></Contribute>
-            </Route>
-          </Switch>
-      </Router>   
-      <Footer></Footer>   
+      <Header user={user} setUser={setUser}></Header>
+      {
+        verifyDone ?
+        <> 
+          <Routes>
+            <Route exact path="/" element={ <ProtectedRoute user={user} component={ Home }></ProtectedRoute> }></Route>
+            <Route path="/register" element={ <Register setUser={setUser} /> }></Route>
+            <Route path="/login" element={ <Login user={user} setUser={setUser} /> }></Route>
+            <Route path="/me" element={ <ProtectedRoute user={user} setUser={setUser} component={ Profile }></ProtectedRoute> }></Route>
+            <Route path="/me/contributions" element={ <ProtectedRoute component={ Contributions } user={user} level={'user'}  ></ProtectedRoute> }></Route>
+            <Route path="/project/:projectId" element={ <Project user={user} setUser={setUser} setProject={setProject} project={project} getProject={getProject} /> }></Route>
+            <Route path="/project/:projectId/part/:partId" element={ <Part user={user} setUser={setUser} project={project} getProject={getProject} /> }></Route>
+            <Route path="/project/:projectId/contributions" element={ <ProtectedRoute component={ Contributions } user={user} level={'project'} /> }></Route>
+            <Route path="/project/:projectId/contribute" element={ <Contribute user={user} setUser={setUser} project={project} getProject={getProject} /> }></Route>
+            <Route path="/contribution/:contributionId" element={ <Contribution user={user} setUser={setUser} project={project} getProject={getProject} /> }></Route>
+            {/* TODO: Create a 404 route */}
+          </Routes>
+        </> 
+        :
+        <Loader/>
+      } 
+    <Footer></Footer>  
     </div>
   )
 }

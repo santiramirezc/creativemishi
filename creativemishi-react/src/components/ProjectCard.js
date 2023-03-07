@@ -1,27 +1,25 @@
-import React from "react"
 import { Link } from "react-router-dom"
 
 const ProjectCard = (props) => {
+  
+  const {name, description, admins, projectId} = props.project
 
-    return (
-      <div className="col s6 m3">
+  return (
+      <div className="col s4">
         <div className="card">
-          <div className="card-image waves-effect waves-block waves-light">
-            <img className="activator" src="office.jpg" />
+          <div className="card-image">
+            <img alt={''} src="/logo192.png" />
+            <span className="card-title black-text">{name}</span>
           </div>
           <div className="card-content">
-            <span className="card-title activator grey-text text-darken-4">{props.name}<i className="material-icons right">more_vert</i></span>
-            <p><Link to={"/project/"+props.projectId}>Ver projecto</Link></p>
+            <p><strong>Description:</strong>{'  '+ description ? description : 'No description'}</p>
           </div>
-          <div className="card-reveal">
-            <span className="card-title grey-text text-darken-4">Proyecto 1<i className="material-icons right">close</i></span>
-            <p>{props.description}</p>
-            <p>{props.btn1}</p>
+          <div className="card-action">
+            <Link to={'/project/'+projectId}>Go to project</Link>
           </div>
         </div>
       </div>
-    )
-  
+  )
 }
 
-export default ProjectCard;
+export default ProjectCard

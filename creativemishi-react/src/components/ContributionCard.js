@@ -1,25 +1,24 @@
-import React from "react"
+import { Link } from "react-router-dom"
 
-class ContributionCard extends React.Component {
-  render(){
-    return (
-      <div className="col s4">
-        <div className="card">
-          <div className="card-image waves-effect waves-block waves-light">
-            <img className="activator" src="/office.jpg" />
-          </div>
-          <div className="card-content">
-            <span className="card-title activator grey-text text-darken-4">Contribution 1<i className="material-icons right">more_vert</i></span>
-            <p><a href="#">This is a link</a></p>
-          </div>
-          <div className="card-reveal">
-            <span className="card-title grey-text text-darken-4">Contribution 1<i className="material-icons right">close</i></span>
-            <p>Here is some more information about this product that is only revealed once clicked on.</p>
-          </div>
+const ContributionCard = (props) => {
+  const { name, description, part, files, _id } = props.contribution
+  
+  return (
+    <div className="col s4">
+      <div className="card">
+        <div className="card-image">
+          <img alt={''} src={files?.finalVersion?.location} />
+          <span className="card-title gray-text"><strong>{name}</strong></span>
+        </div>
+        <div className="card-content">
+          <p><strong>Description:</strong>{'  '+ description ? description : 'No description'}</p>
+        </div>
+        <div className="card-action">
+          <Link to={'/contribution/'+_id}>Go to contribution</Link>
         </div>
       </div>
-    )
-  }
+    </div>
+  )
 }
 
-export default ContributionCard;
+export default ContributionCard

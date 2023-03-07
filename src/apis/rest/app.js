@@ -1,4 +1,5 @@
 const express = require('express')
+const path = require('path')
 
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
@@ -51,9 +52,9 @@ app.use(cors(corsOptions));
 app.use(passport.initialize())
 
 
-
+app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', require('./routes/index'))
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
+//app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
 
 /**
  * Determines the status code for the response for an error

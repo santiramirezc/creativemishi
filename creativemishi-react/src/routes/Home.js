@@ -1,40 +1,55 @@
 import React , {useEffect, useState} from "react"
 import { useLocation } from "react-router-dom"
-import Title from './../components/Title'
-import ProjectCard from './../components/ProjectCard'
 
-var Home = () => {
+import ProjectCard from "../components/ProjectCard"
 
-  const [user,setUser] = useState({})
-  const [projects,setProjects] = useState([{}])
-  const host = window.location.href
-  
+var Home = (props) => {
+  const { user } = props
+
+  const [projects, setProjects] = useState()
+
   useEffect(() => {
-    getProjects()
+    if(!projects){
+      getAllProjects()
+    }
   },[])
 
-  const getProjects = () => {
-    //Traer los datos del usuario 
-    fetch('/app/projects')
-      .then(res => res.json())
-      .then(data => {
-        console.log(data)
-        setProjects(data)        
-      })
-      .catch((error) =>{
-        alert("No se pudo traer los proyectos")
-      })
+  const getAllProjects = () => {
+    fetch(process.env.REACT_APP_API_ENDPOINT + "project", {
+      credentials: "include",
+      method:"GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${user.token}`,
+      },
+    }).then(async (response) => {
+      const {success, data, comment} = await response.json()
+      if(success && data){
+        setProjects(data)
+      }
+      if(success && !data){
+        console.log("No data :/")
+      }
+      if(!success && comment){
+        console.log(comment)
+      }else{
+        console.log("EEEERRRROR")
+      }
+    })
   }
     
   return (
     <div className="App">
-      <h3 className="center" > Proyectos</h3>
+      <h3 className="center" > Bienvenido a Creative Mishi</h3>
       <div className="row">
         <div className="col s12">
           {
-            projects.map((project,index) => {
-              return <ProjectCard name={project.name} description={project.description} projectId={project.projectId}></ProjectCard>
-            })
+            projects?.length > 0 ?
+              projects.map((project) => {
+                return <ProjectCard project={project} />
+              })
+            :
+            "No projects"
           }
         </div>
       </div>

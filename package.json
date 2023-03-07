@@ -13,7 +13,11 @@
     "test:api:prod": "jest --config=jest.api.prod.config.js",
     "test:api": "jest --config=jest.api.config.js",
     "test:watch": "npm run test -- --watch",
-    "test": "jest --config=jest.unit.config.js"
+    "test": "jest --config=jest.unit.config.js",
+    "react": "cd react && react-scripts start",
+    "react-build": "cd creativemishi-react && react-scripts build",
+    "react-copy-windows": "xcopy creativemishi-react\\build src\\apis\\rest\\public /e /y",
+    "react-win": "npm run react-build && npm run react-copy-windows && npm run dev"
   },
   "dependencies": {
     "awilix": "^6.0.0",

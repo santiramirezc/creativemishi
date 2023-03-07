@@ -1,21 +1,19 @@
-import React, {useState} from "react"
-import { Redirect, Route, useLocation } from "react-router-dom";
+import React from "react"
+import { Navigate } from "react-router-dom";
 
-const PrivateRoute = ({ getUser,component: Component}) => {
-  const location = useLocation();
-  var user = getUser()
-  console.log(useState())
+const PrivateRoute = (props) => {
+  const { component:Component, user } = props
+  console.log("Accesing protected route")
+  //console.log(user)
 
-  console.log("Esto es ruta protegida, user:")
-  console.log(user)
   return (
-    <Route>
+    <>
       {user != null ?
-        <Component />
+        <Component {...props} />
       :
-        <Redirect to={{ pathname: "/login", state: { from: location } }} />
+        <Navigate to={{ pathname: "/login" }} />
       }
-    </Route>
+    </>
   );
 };
 
