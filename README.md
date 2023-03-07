@@ -10,6 +10,9 @@ Git and github allows developers to version their code, connect and collaborate
 
 Creative Mishi allows visual creators that want to version their work, connect and collaborate with other people.
 
+Try now! 
+https://creativemishi.santirc.com
+
 ## Dependencies
 
 - `node 14.x`
