@@ -6,9 +6,9 @@
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=chghealthcare_chg-node-template-tool&metric=security_rating&token=fe47929da889ba3cc810cc1680b6dc963ba00da9)](https://sonarcloud.io/dashboard?id=chghealthcare_chg-node-template-tool)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=chghealthcare_chg-node-template-tool&metric=vulnerabilities&token=fe47929da889ba3cc810cc1680b6dc963ba00da9)](https://sonarcloud.io/dashboard?id=chghealthcare_chg-node-template-tool)
 
-As git and github is for developers a place to connect and collaborate
+Git and github allows developers to version their code, connect and collaborate
 
-Creative Mishi is here for any creator that wants to connect and collaborate with other people
+Creative Mishi allows visual creators that want to version their work, connect and collaborate with other people.
 
 ## Dependencies
 
