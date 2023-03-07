@@ -1,4 +1,4 @@
-# Express Service Template
+# Creative Mishi
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=chghealthcare_chg-node-template-tool&metric=alert_status&token=fe47929da889ba3cc810cc1680b6dc963ba00da9)](https://sonarcloud.io/dashboard?id=chghealthcare_chg-node-template-tool)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=chghealthcare_chg-node-template-tool&metric=coverage&token=fe47929da889ba3cc810cc1680b6dc963ba00da9)](https://sonarcloud.io/dashboard?id=chghealthcare_chg-node-template-tool)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=chghealthcare_chg-node-template-tool&metric=security_rating&token=fe47929da889ba3cc810cc1680b6dc963ba00da9)](https://sonarcloud.io/dashboard?id=chghealthcare_chg-node-template-tool)
@@ -6,7 +6,9 @@
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=chghealthcare_chg-node-template-tool&metric=security_rating&token=fe47929da889ba3cc810cc1680b6dc963ba00da9)](https://sonarcloud.io/dashboard?id=chghealthcare_chg-node-template-tool)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=chghealthcare_chg-node-template-tool&metric=vulnerabilities&token=fe47929da889ba3cc810cc1680b6dc963ba00da9)](https://sonarcloud.io/dashboard?id=chghealthcare_chg-node-template-tool)
 
-For a more detailed explanation of the project structure, look [here](src/README.md)
+As git and gihub is for developers a place to connect and collaborate
+
+Creative Mishi is here for any creator that wants to connect and collaborate with other people
 
 ## Dependencies
 
@@ -41,21 +43,6 @@ npm run test:watch
 ```
 
 There is a coverage requirement of 90% (statements, branches, functions, and lines).
-
-### API Tests
-
-This project uses [`dotenv`](https://www.npmjs.com/package/dotenv) to import environment variables from a file. For running the api tests locally, make sure the `test.env` file has been created. You can copy the `./example-test.env` to start.
-
-To run api tests:
-
-```sh
-
-# Start the development server locally in another terminal
-npm run dev
-
-npm run test:api
-
-```
 
 ## Contributing
 
